@@ -3,12 +3,13 @@
   "version": "1.0.0",
   "description": "backend folder for jobSparx",
   "main": "server.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+    "dev": "nodemon src/server.js"  },
   "author": "yash Shukla",
   "license": "ISC",
   "devDependencies": {
-    "nodemon": "^3.1.7"
+    "nodemon": "^3.1.7",
+    "prettier": "^3.3.3"
   }
 }
