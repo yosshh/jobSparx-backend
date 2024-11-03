@@ -18,7 +18,7 @@ const registerCompany = asyncHandler(async (req, res) => {
 
         const createCompany = await Company.create({
             companyName,
-            userId: req.user._id // Make sure `req.user._id` is set by the authentication middleware
+            userId: req.user._id 
         });
 
         return res

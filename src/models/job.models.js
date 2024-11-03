@@ -26,7 +26,7 @@ const jobSchema = new Schema({
         required: true
     },
     position: {
-        type: Number,
+        type: String,
         required: true
     },
     company: {
@@ -34,7 +34,11 @@ const jobSchema = new Schema({
         ref: "Company",
         required: true
     },
-    createdBy: {
+    experience: {
+        type: Number,
+        required: true
+    },
+    created_by: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         required: true
