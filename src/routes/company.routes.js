@@ -6,14 +6,9 @@ import { getCompany, getCompanyId, registerCompany, updateCompany } from '../con
 const router = Router()
 
 
-// console.log(loginUser);
-// console.log(logoutUser);
-// console.log(registerUser);
-// console.log(updateUser);
-
 router.route("/register-company").post(verifyJWT, registerCompany)
 router.route("/get-company").get(verifyJWT, getCompany)
-router.route("/get-company/:id").get(verifyJWT, getCompanyId)
+router.route("/get-company/:id").get( getCompanyId)
 router.route('/update/:id').put(verifyJWT, updateCompany)
 
 
