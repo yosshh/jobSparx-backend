@@ -130,15 +130,15 @@ const refreshAccessToken = asyncHandler (async (req, res)=> {
 // Login User
 const loginUser = asyncHandler(async (req, res) => {
   try {
-    const { email, password, phoneNumber, role } = req.body;
+    console.log("request body",req.body);
+    
+    const { email, password, role } = req.body;
 
-    if (!(email || phoneNumber)) {
-      throw new ApiError(400, "Email or Phone Number is required.");
+    if (!email) {
+      throw new ApiError(400, "Email is required.");
     }
 
-    const user = await User.findOne({
-      $or: [{ email }, { phoneNumber }],
-    });
+    const user = await User.findOne({email});
 
     if (!user) {
       throw new ApiError(404, "User does not exist.");
