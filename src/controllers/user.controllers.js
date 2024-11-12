@@ -3,6 +3,8 @@ import { ApiError } from "../utils/apiError.js";
 import { User } from "../models/user.models.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import jwt from "jsonwebtoken";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import fs from "fs";
 
 const generateAccessAndRefreshToken = async (userId) => {
   try {
@@ -24,10 +26,8 @@ const generateAccessAndRefreshToken = async (userId) => {
 
 // Register User
 const registerUser = asyncHandler(async (req, res) => {
-  // console.log("hello");
-
   const { fullName, email, phoneNumber, password, role } = req.body;
-  // console.log(req.body)
+  console.log(req.file);
 
   // Check if any fields are missing or empty
   if (
@@ -56,6 +56,18 @@ const registerUser = asyncHandler(async (req, res) => {
     );
   }
 
+  let profilePhotoLocalPath;
+  if (req.file) {
+    profilePhotoLocalPath = req.file.path;
+    // console.log("Profile photo file path:", profilePhotoLocalPath);
+  }
+
+  let profilePhoto = null;
+  if (profilePhotoLocalPath) {
+    profilePhoto = await uploadOnCloudinary(profilePhotoLocalPath);
+    console.log("Cloudinary URL:", profilePhoto?.url);
+  }
+
   // Create new user
   const user = await User.create({
     fullName,
@@ -63,6 +75,9 @@ const registerUser = asyncHandler(async (req, res) => {
     phoneNumber,
     role,
     password,
+    profile: {
+    profilePhoto: profilePhoto?.url || "",
+  },
   });
 
   // Exclude password and refreshToken from the response
@@ -74,10 +89,15 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(500, "Something went wrong while registering the user");
   }
 
+  // console.log("created user", createdUser);
+
   // Send response
-  return res
+  res
     .status(201)
-    .json(new ApiResponse(201, createdUser, "User registered successfully."));
+    .json({ success: true, message: "User registered successfully." });
+  // return res
+  //   .status(201)
+  //   .json(new ApiResponse(201, createdUser, "User registered successfully."));
 });
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
@@ -133,7 +153,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 // Login User
 const loginUser = asyncHandler(async (req, res) => {
   try {
-    console.log("request body", req.body);
+    // console.log("request body", req.body);
 
     const { email, password, role } = req.body;
 
@@ -163,7 +183,7 @@ const loginUser = asyncHandler(async (req, res) => {
     const loggedInUser = await User.findById(user._id).select(
       "-password -refreshToken"
     );
-    console.log("Logged In User:", loggedInUser);
+    // console.log("Logged In User:", loggedInUser);
 
     const options = {
       httpOnly: true,
@@ -241,9 +261,9 @@ const updateUser = asyncHandler(async (req, res) => {
       throw new ApiError(400, "Error while uploading Profile Image");
     }
 
-    if(resumeFile) {
-      user.profile.resume = resumeFile.url
-      user.profile.resumeOriginalName = file.originalname
+    if (resumeFile) {
+      user.profile.resume = resumeFile.url;
+      user.profile.resumeOriginalName = file.originalname;
     }
 
     const skillsArray = skills ? skills.split(",") : [];
