@@ -65,7 +65,7 @@ const registerUser = asyncHandler(async (req, res) => {
   let profilePhoto = null;
   if (profilePhotoLocalPath) {
     profilePhoto = await uploadOnCloudinary(profilePhotoLocalPath);
-    console.log("Cloudinary URL:", profilePhoto?.url);
+    // console.log("Cloudinary URL:", profilePhoto?.url);
   }
 
   // Create new user
@@ -76,8 +76,8 @@ const registerUser = asyncHandler(async (req, res) => {
     role,
     password,
     profile: {
-    profilePhoto: profilePhoto?.url || "",
-  },
+      profilePhoto: profilePhoto?.url || "",
+    },
   });
 
   // Exclude password and refreshToken from the response
@@ -218,14 +218,16 @@ const logoutUser = asyncHandler(async (req, res) => {
           refreshToken: undefined,
         },
       },
-      {
-        new: true,
-      }
+      // {
+      //   new: true,
+      // }
     );
 
     const options = {
       httpOnly: true,
       secure: true,
+      sameSite: "None", 
+      path: "/",
     };
 
     return res
