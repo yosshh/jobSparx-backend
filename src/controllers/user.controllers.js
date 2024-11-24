@@ -209,38 +209,49 @@ const loginUser = asyncHandler(async (req, res) => {
 });
 
 // Logout User
-const logoutUser = asyncHandler(async (req, res) => {
+// const logoutUser = asyncHandler(async (req, res) => {
+//   try {
+//     await User.findByIdAndUpdate(
+//       req.user?._id,
+//       {
+//         $set: {
+//           refreshToken: undefined,
+//         },
+//       },
+//       {
+//         new: true,
+//       }
+//     );
+
+//     const options = {
+//       httpOnly: true,
+//       secure: true,
+//       sameSite: "None", 
+//       path: "/",
+//     };
+
+//     return res
+//       .status(200)
+//       .clearCookie("accessToken", options)
+//       .clearCookie("refreshToken", options)
+//       .json(new ApiResponse(200, {}, "User logged out"));
+//   } catch (error) {
+//     return res
+//       .status(error.statusCode || 500)
+//       .json(new ApiError(error.statusCode || 500, error.message));
+//   }
+// });
+
+const logoutUser = async (req, res) => {
   try {
-    await User.findByIdAndUpdate(
-      req.user._id,
-      {
-        $set: {
-          refreshToken: undefined,
-        },
-      },
-      // {
-      //   new: true,
-      // }
-    );
-
-    const options = {
-      httpOnly: true,
-      secure: true,
-      sameSite: "None", 
-      path: "/",
-    };
-
-    return res
-      .status(200)
-      .clearCookie("accessToken", options)
-      .clearCookie("refreshToken", options)
-      .json(new ApiResponse(200, {}, "User logged out"));
+      return res.status(200).cookie("token", "", { maxAge: 0 }).json({
+          message: "Logged out successfully.",
+          success: true
+      })
   } catch (error) {
-    return res
-      .status(error.statusCode || 500)
-      .json(new ApiError(error.statusCode || 500, error.message));
+      console.log(error);
   }
-});
+}
 
 // Update User
 const updateUser = asyncHandler(async (req, res) => {
