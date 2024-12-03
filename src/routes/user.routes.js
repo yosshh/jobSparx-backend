@@ -14,6 +14,6 @@ const router = Router();
 router.route("/register").post(upload.single("file"), registerUser);
 router.route("/login").post(loginUser);
 router.route("/logout").get( logoutUser);
-router.route("/profile/update").patch(verifyJWT,upload.single("file"), updateUser); 
+router.route("/profile/update").post(verifyJWT,upload.single("file"), updateUser); 
 
 export default router;

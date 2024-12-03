@@ -256,52 +256,45 @@ const logoutUser = async (req, res) => {
 // Update User
 const updateUser = asyncHandler(async (req, res) => {
   try {
+    // console.log("Logged-in user:", req.user); 
+    const userId = req.user?._id; 
+
     const { fullName, email, phoneNumber, bio, skills } = req.body;
 
     if (!(fullName || email || phoneNumber || bio || skills)) {
-      throw new ApiError(400, "Some credentials are missing.");
+      throw new ApiError(400, "No fields to update.");
     }
 
-    const resumeFileLocalPath = req.file?.path;
+    const updateData = {};
 
-    if (!resumeFileLocalPath) {
-      throw new ApiError(400, "Resume file is missing");
-    }
+    // Update non-nested fields
+    if (fullName) updateData.fullName = fullName;
+    if (email) updateData.email = email;
+    if (phoneNumber) updateData.phoneNumber = phoneNumber;
 
-    const resumeFile = await uploadOnCloudinary(resumeFileLocalPath);
+    // Update nested fields inside `profile`
+    if (bio) updateData["profile.bio"] = bio;
+    if (skills) updateData["profile.skills"] = skills.split(",").map(skill => skill.trim());
 
-    if (!resumeFile.url) {
-      throw new ApiError(400, "Error while uploading Profile Image");
-    }
-
-    if (resumeFile) {
-      user.profile.resume = resumeFile.url;
-      user.profile.resumeOriginalName = file.originalname;
-    }
-
-    const skillsArray = skills ? skills.split(",") : [];
-
-    const user = await User.findByIdAndUpdate(
-      req.user?._id,
-      {
-        $set: {
-          fullName,
-          email,
-          phoneNumber,
-          bio,
-          skills: skillsArray,
-          resume: resumeFile.url,
-        },
-      },
-      {
-        new: true,
+    if (req.file) {
+      const resumeFile = await uploadOnCloudinary(req.file.path);
+      if (!resumeFile.url) {
+        throw new ApiError(400, "Error while uploading file");
       }
-    ).select("-password");
+      updateData["profile.resume"] = resumeFile.url;
+      updateData["profile.resumeName"] = req.file.originalname;
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: updateData }, // Use dot notation for nested fields
+      { new: true, runValidators: true }
+    ).select("-password"); // Exclude password from response
 
     return res
       .status(200)
       .json(
-        new ApiResponse(200, user, "Account details updated successfully.")
+        new ApiResponse(200, updatedUser, "Account details updated successfully.")
       );
   } catch (error) {
     return res
@@ -309,5 +302,6 @@ const updateUser = asyncHandler(async (req, res) => {
       .json(new ApiError(error.statusCode || 500, error.message));
   }
 });
+
 
 export { registerUser, loginUser, logoutUser, updateUser, refreshAccessToken };
