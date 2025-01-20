@@ -27,7 +27,7 @@ const generateAccessAndRefreshToken = async (userId) => {
 // Register User
 const registerUser = asyncHandler(async (req, res) => {
   const { fullName, email, phoneNumber, password, role } = req.body;
-  console.log(req.file);
+  // console.log(req.file);
 
   // Check if any fields are missing or empty
   if (
