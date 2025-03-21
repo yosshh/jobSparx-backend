@@ -2,6 +2,8 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { Job } from "../models/job.models.js";
+import { io } from "../server.js";
+
 
 // admin posting jobs
 const postJob = asyncHandler( async (req, res) => {
@@ -26,6 +28,13 @@ const postJob = asyncHandler( async (req, res) => {
             company: companyId,
             created_by: userId
         })
+        console.log("📢 Emitting new job alert:", job);
+        io.emit("newJob", {
+            title: job.title,
+            company: job.company.toString(),
+            location: job.location
+        });
+
 
         return res
         .status(201)
