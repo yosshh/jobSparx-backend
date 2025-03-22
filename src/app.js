@@ -28,11 +28,19 @@ app.use("/api/v1/company", companyRouter)
 app.use("/api/v1/jobs", jobRouter)
 app.use("/api/v1/application", applicationRouter)
 
+console.log("🔍 Checking Middleware Stack:");
 app._router.stack.forEach((middleware) => {
     if (middleware.route) { 
-        console.log(`Route registered: ${middleware.route.path}`);
+        console.log(`✅ Registered Route: ${middleware.route.path}`);
+    } else if (middleware.name === 'router') {
+        middleware.handle.stack.forEach((handler) => {
+            if (handler.route) {
+                console.log(`✅ Nested Route Registered: ${handler.route.path}`);
+            }
+        });
     }
 });
+
 
 
 export { app }
