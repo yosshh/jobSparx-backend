@@ -28,4 +28,11 @@ app.use("/api/v1/company", companyRouter)
 app.use("/api/v1/jobs", jobRouter)
 app.use("/api/v1/application", applicationRouter)
 
+app._router.stack.forEach((middleware) => {
+    if (middleware.route) { 
+        console.log(`Route registered: ${middleware.route.path}`);
+    }
+});
+
+
 export { app }
