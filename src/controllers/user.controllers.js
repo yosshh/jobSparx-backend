@@ -209,14 +209,20 @@ const loginUser = asyncHandler(async (req, res) => {
 });
 
 const getAllUsers = asyncHandler(async (req, res) => {
+  console.log("📢 API CALL: GET /api/v1/users");  // ✅ Log API Call
+
   const users = await User.find();
 
   if (!users || users.length === 0) {
+      console.log("❌ No users found in database!");
       throw new ApiError(404, "No users found.");
   }
 
+  console.log("✅ Users fetched successfully");
   res.status(200).json(new ApiResponse(200, users, "Users fetched successfully"));
 });
+
+export { getAllUsers };
 
 // Logout User
 // const logoutUser = asyncHandler(async (req, res) => {
