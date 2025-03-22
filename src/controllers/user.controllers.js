@@ -208,6 +208,16 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 });
 
+const getAllUsers = asyncHandler(async (req, res) => {
+  const users = await User.find();
+
+  if (!users || users.length === 0) {
+      throw new ApiError(404, "No users found.");
+  }
+
+  res.status(200).json(new ApiResponse(200, users, "Users fetched successfully"));
+});
+
 // Logout User
 // const logoutUser = asyncHandler(async (req, res) => {
 //   try {
@@ -304,4 +314,4 @@ const updateUser = asyncHandler(async (req, res) => {
 });
 
 
-export { registerUser, loginUser, logoutUser, updateUser, refreshAccessToken };
+export { registerUser, loginUser, logoutUser, updateUser, refreshAccessToken, getAllUsers };
