@@ -37,6 +37,19 @@ connectDB()
         console.log("ERROR: ", error);
         throw error
     })
+
+    console.log("🔍 Checking Registered Routes:");
+    app._router.stack.forEach((middleware) => {
+        if (middleware.route) { 
+            console.log(`✅ Route registered: ${middleware.route.path}`);
+        } else if (middleware.name === 'router') {
+            middleware.handle.stack.forEach((handler) => {
+                if (handler.route) {
+                    console.log(`✅ Nested Route registered: ${handler.route.path}`);
+                }
+            });
+        }
+    });
     server.listen(process.env.PORT || 8000, ()=> {
         console.log(`App is listening at port : ${process.env.PORT}`);
     })
