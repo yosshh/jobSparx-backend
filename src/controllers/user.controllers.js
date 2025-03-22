@@ -222,7 +222,6 @@ const getAllUsers = asyncHandler(async (req, res) => {
   res.status(200).json(new ApiResponse(200, users, "Users fetched successfully"));
 });
 
-export { getAllUsers };
 
 // Logout User
 // const logoutUser = asyncHandler(async (req, res) => {
