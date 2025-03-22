@@ -10,6 +10,7 @@ import { verifyJWT } from "../middleware/auth.middleware.js";
 import { upload } from "../middleware/multer.middleware.js";
 
 const router = Router();
+console.log("✅ User routes are being registered...");
 
 // Routes
 router.route("/").get(getAllUsers);
