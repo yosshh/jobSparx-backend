@@ -5,13 +5,14 @@ import cookieParser from 'cookie-parser'
 
 const app = express()
 
-
 app.use(
     cors({
-      origin: ["https://job-sparx-frontend.vercel.app", "http://localhost:5173"], 
-      credentials: true, 
+      origin: ["https://job-sparx-frontend.vercel.app", "http://localhost:5173"], // Only allow frontend
+      credentials: true, // Allow cookies & headers
+      methods: ["GET", "POST", "PUT", "DELETE"], // Allowed methods
+      allowedHeaders: ["Content-Type", "Authorization"], // Allow necessary headers
     })
-);
+  );
 
 app.use(express.json({limit: "16kb"}))
 app.use(urlencoded({extended: true, limit: "16kb"}))
