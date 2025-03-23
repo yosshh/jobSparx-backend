@@ -7,7 +7,7 @@ const app = express()
 
 app.use(
     cors({
-      origin: ["https://job-sparx-frontend.vercel.app", "http://localhost:5173"], // Only allow frontend
+      origin: ["https://job-sparx-frontend-yg9o.vercel.app", "http://localhost:5173"], // Only allow frontend
       credentials: true, // Allow cookies & headers
       methods: ["GET", "POST", "PUT", "DELETE"], // Allowed methods
       allowedHeaders: ["Content-Type", "Authorization"], // Allow necessary headers
