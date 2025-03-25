@@ -14,7 +14,7 @@ const app = express();
 const server = http.createServer(app);
 
 
-const allowedOrigins = ["https://job-sparx-frontend-yg9o.vercel.app", "http://localhost:5173"];
+const allowedOrigins = ["https://job-sparx-frontend.vercel.app/", "http://localhost:5173"];
 app.use(
     cors({
         origin: allowedOrigins,
