@@ -185,10 +185,11 @@ const loginUser = asyncHandler(async (req, res) => {
     );
     // console.log("Logged In User:", loggedInUser);
 
-    const options = {
-      httpOnly: true,
-      secure: true,
-    };
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true, 
+      secure: process.env.NODE_ENV === "production", 
+      sameSite: "None" 
+  });
 
     return res
       .status(200)
