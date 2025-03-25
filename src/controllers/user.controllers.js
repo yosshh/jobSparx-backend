@@ -191,6 +191,8 @@ const loginUser = asyncHandler(async (req, res) => {
       sameSite: "None" 
   });
 
+  console.log("Token Set in Cookie:", accessToken);
+
     return res
       .status(200)
       .cookie("accessToken", accessToken, options)
