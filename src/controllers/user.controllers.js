@@ -153,8 +153,6 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 // Login User
 const loginUser = asyncHandler(async (req, res) => {
   try {
-    // console.log("request body", req.body);
-
     const { email, password, role } = req.body;
 
     if (!email) {
@@ -183,33 +181,36 @@ const loginUser = asyncHandler(async (req, res) => {
     const loggedInUser = await User.findById(user._id).select(
       "-password -refreshToken"
     );
-    // console.log("Logged In User:", loggedInUser);
 
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true, 
-      secure: process.env.NODE_ENV === "production", 
-      sameSite: "None" 
-  });
+    // ✅ Define cookie options explicitly
+    const cookieOptions = {
+      httpOnly: true,  
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "None",
+      expires: new Date(Date.now() + 24 * 60 * 60 * 1000) // ✅ Expires in 1 day
+    };
 
-  console.log("Token Set in Cookie:", accessToken);
+    // ✅ Set cookies only once
+    res.cookie("accessToken", accessToken, cookieOptions);
+    res.cookie("refreshToken", refreshToken, cookieOptions);
 
-    return res
-      .status(200)
-      .cookie("accessToken", accessToken, options)
-      .cookie("refreshToken", refreshToken, options)
-      .json({
-        success: true,
-        user: loggedInUser,
-        accessToken,
-        refreshToken,
-        message: `User logged in successfully, welcome ${user.fullName}`,
-      });
+    console.log("✅ Token Set in Cookie:", accessToken);
+
+    return res.status(200).json({
+      success: true,
+      user: loggedInUser,
+      accessToken,
+      refreshToken,
+      message: `User logged in successfully, welcome ${user.fullName}`,
+    });
+
   } catch (error) {
     return res
       .status(error.statusCode || 500)
       .json(new ApiError(error.statusCode || 500, error.message));
   }
 });
+
 
 const getAllUsers = asyncHandler(async (req, res) => {
   console.log("📢 API CALL: GET /api/v1/users");  // ✅ Log API Call
