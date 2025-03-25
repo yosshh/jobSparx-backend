@@ -2,7 +2,8 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { Job } from "../models/job.models.js";
-import { io } from "../server.js";
+import io from "../server.js";
+
 
 
 // admin posting jobs
@@ -16,24 +17,32 @@ const postJob = asyncHandler( async (req, res) => {
         }
         
 
-        const job = await Job.create({
+        let job = await Job.create({
             title,
             description,
             location,
             salary: Number(salary),
             experience,
             position,
-            requirements: requirements.split(","),
+            requirements: requirements.split(","), 
             jobType,
             company: companyId,
             created_by: userId
         })
-        console.log("📢 Emitting new job alert:", job);
-        io.emit("newJob", {
-            title: job.title,
-            company: job.company.toString(),
-            location: job.location
-        });
+
+        job = await job.populate("company", "companyName");
+
+        console.log("Emitting new job alert:", job);
+        if (req.io) {
+            req.io.emit("newJob", {
+                title: job.title,
+                company: job.company.companyName,
+                location: job.location
+            });
+        } else {
+            console.error("req.io is undefined! WebSocket event not emitted.");
+        }
+
 
 
         return res

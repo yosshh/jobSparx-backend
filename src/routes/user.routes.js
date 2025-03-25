@@ -10,13 +10,12 @@ import { verifyJWT } from "../middleware/auth.middleware.js";
 import { upload } from "../middleware/multer.middleware.js";
 
 const router = Router();
-console.log("✅ User routes are being registered...");
 
 // Routes
 router.route("/").get(getAllUsers);
 router.route("/register").post(upload.single("file"), registerUser);
 router.route("/login").post(loginUser);
-router.route("/logout").get( logoutUser);
+router.route("/logout").get(logoutUser);
 router.route("/profile/update").post(verifyJWT,upload.single("file"), updateUser); 
 
 export default router;

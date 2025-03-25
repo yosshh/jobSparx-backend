@@ -1,61 +1,79 @@
-import connectDB from './db/index.js';
-import dotenv from 'dotenv';
-import { app } from './app.js';
-import http from 'http';
-import { Server } from 'socket.io';
+import express, { urlencoded } from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import dotenv from "dotenv";
+import http from "http";
+import { Server } from "socket.io";
+import connectDB from "./db/index.js";
 
 dotenv.config({
-    path: './.env'
+    path: "./.env"
 });
 
-// ✅ Create HTTP server for Express & WebSockets
+const app = express();
 const server = http.createServer(app);
 
-// ✅ Fix WebSocket CORS Issue (With Debugging)
+
+const allowedOrigins = ["https://job-sparx-frontend-yg9o.vercel.app", "http://localhost:5173"];
+app.use(
+    cors({
+        origin: allowedOrigins,
+        credentials: true, 
+        methods: ["GET", "POST", "PUT", "DELETE"],
+        allowedHeaders: ["Content-Type", "Authorization"]
+    })
+);
+
+
+app.use(express.json({ limit: "16kb" }));
+app.use(urlencoded({ extended: true, limit: "16kb" }));
+app.use(express.static("public"));
+app.use(cookieParser());
+
+app.use((req, res, next) => {
+    req.io = io;
+    next();
+});
+
+
+import userRouter from "./routes/user.routes.js";
+import companyRouter from "./routes/company.routes.js";
+import jobRouter from "./routes/jobs.routes.js";
+import applicationRouter from "./routes/application.routes.js";
+
+
+app.use("/api/v1/users", userRouter);
+app.use("/api/v1/company", companyRouter);
+app.use("/api/v1/jobs", jobRouter);
+app.use("/api/v1/application", applicationRouter);
+
+
 const io = new Server(server, {
     cors: {
-        origin: ["https://job-sparx-frontend-yg9o.vercel.app", "http://localhost:5173"], 
-        methods: ["GET", "POST"], 
-        allowedHeaders: ["Content-Type", "Authorization"], 
-        credentials: true 
+        origin: allowedOrigins,
+        credentials: true
     }
 });
+
 
 io.on("connection", (socket) => {
-    console.log("📢 WebSocket Connection Attempt from:", socket.handshake.headers.origin);
-
-    if (!socket.handshake.headers.origin) {
-        console.log("❌ Missing Origin Header - Possible CORS Issue");
-    } else if (!["https://job-sparx-frontend-yg9o.vercel.app", "http://localhost:5173"].includes(socket.handshake.headers.origin)) {
-        console.log(`❌ Unauthorized Origin: ${socket.handshake.headers.origin}`);
-    } else {
-        console.log("✅ WebSocket Connection Allowed");
-    }
-
-    socket.on("subscribeToJobAlerts", (userId) => {
-        console.log(`📢 User ${userId} subscribed to job alerts`);
-        socket.join(`job-alerts-${userId}`);
-    });
+    console.log(`WebSocket Connection: ${socket.id}`);
 
     socket.on("disconnect", () => {
-        console.log("📢 WebSocket Disconnected: " + socket.id);
+        console.log(`WebSocket Disconnected: ${socket.id}`);
     });
 });
+
+
 
 connectDB()
     .then(() => {
-        app.on("error", (error) => {
-            console.log("ERROR: ", error);
-            throw error;
-        });
-
-        // ✅ Use `server.listen` instead of `app.listen`
         server.listen(process.env.PORT || 8000, () => {
-            console.log(`✅ Server is running on port: ${process.env.PORT || 8000}`);
+            console.log(`Server is running on port: ${process.env.PORT || 8000}`);
         });
     })
     .catch((error) => {
-        console.log("❌ MongoDB Connection Failed: ", error);
+        console.log("MongoDB Connection Failed: ", error);
     });
 
-export { io };
+export default io;
